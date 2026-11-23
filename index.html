@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>PD FLOW LAB — visual RTL to GDSII physical design trainer</title>
+<meta name="description" content="Run and see every physical design stage on a live die: floorplan, power grid, placement, CTS, routing, timing closure and signoff. Built on sky130A and the open-source flow." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/app.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b16'/%3E%3Crect x='8' y='8' width='16' height='16' rx='2' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23a3e635'/%3E%3C/svg%3E" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<header class="topbar" id="topbar">
+  <a class="brand" href="#lab" aria-label="PD Flow Lab home">
+    <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+      <rect x="1.5" y="1.5" width="29" height="29" rx="7" fill="#0b1224" stroke="#243453"/>
+      <rect x="8" y="8" width="16" height="16" rx="2" fill="none" stroke="#22d3ee" stroke-width="1.6"/>
+      <rect x="12.5" y="12.5" width="7" height="7" fill="#a3e635"/>
+      <g stroke="#ff4d9d" stroke-width="1.4">
+        <path d="M12 8V4M20 8V4M12 28v-4M20 28v-4M8 12H4M8 20H4M28 12h-4M28 20h-4"/>
+      </g>
+    </svg>
+    <span class="brand-txt"><b>PD FLOW LAB</b><i>RTL → GDSII, visually</i></span>
+  </a>
+
+  <nav class="nav" id="nav" aria-label="Sections">
+    <a href="#lab" data-sec="lab" class="on">Flow Lab</a>
+    <a href="#learn" data-sec="learn">Learn</a>
+    <a href="#tools" data-sec="tools">Toolchain</a>
+    <a href="#access" data-sec="access">Access</a>
+    <a href="#progress" data-sec="progress">Progress</a>
+  </nav>
+
+  <div class="top-actions">
+    <div class="xp-chip" id="xpChip" title="Experience points earned by running stages and passing quizzes">
+      <span class="xp-lvl" id="xpLevel">L1</span>
+      <span class="xp-bar"><i id="xpFill"></i></span>
+      <span class="xp-num" id="xpNum">0 XP</span>
+    </div>
+    <div class="power-wrap">
+      <button class="icon-btn live" id="powerBtn" aria-expanded="false" title="Local server is running — click for options">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6.5 6.8a8 8 0 1011 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="powerLbl">Running</span>
+      </button>
+      <div class="power-pop" id="powerPop" hidden>
+        <h4>Local server</h4>
+        <p id="powerInfo">Running on this laptop only.</p>
+        <div class="power-acts">
+          <button class="btn tiny" id="powerStop">Stop server</button>
+          <button class="btn tiny ghost" id="powerKeep">Keep running</button>
+        </div>
+        <span class="power-note">Stopping is safe — your XP and answers are saved.</span>
+      </div>
+    </div>
+    <button class="icon-btn" id="soundBtn" aria-pressed="true" title="Sound on — click to mute everything">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="spk" d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="wv" d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path class="mute" d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span id="soundLbl">Sound</span>
+    </button>
+    <button class="btn primary" id="runAllTop">Run full flow</button>
+  </div>
+</header>
+
+<main>
+<nav class="subnav" aria-label="Sections (compact)">
+  <a href="#lab" data-sec="lab" class="on">Flow Lab</a>
+  <a href="#learn" data-sec="learn">Learn</a>
+  <a href="#tools" data-sec="tools">Toolchain</a>
+  <a href="#access" data-sec="access">Access</a>
+  <a href="#progress" data-sec="progress">Progress</a>
+</nav>
+<!-- ══════════════ LAB ══════════════ -->
+<section id="lab" class="sec lab">
+  <div class="lab-head">
+    <div class="design-pick">
+      <label for="designSel">Design</label>
+      <select id="designSel"></select>
+      <p id="designNote"></p>
+    </div>
+    <div class="run-bar">
+      <button class="btn" id="prevBtn" title="Step back one stage">◀ Back</button>
+      <button class="btn primary" id="runBtn">Run stage ▶</button>
+      <button class="btn" id="runAllBtn">Run all ▶▶</button>
+      <button class="btn ghost" id="resetBtn">Reset</button>
+      <button class="btn ghost" id="randBtn" title="Randomise the physical parameters">Randomise</button>
+      <span class="run-state" id="runState">idle</span>
+    </div>
+  </div>
+
+  <div class="lab-grid">
+    <!-- stage rail -->
+    <aside class="rail panel" aria-label="Flow stages">
+      <h2 class="panel-t">Flow <span id="railCount">0 / 9</span></h2>
+      <ol class="stages" id="stageList"></ol>
+      <div class="rail-foot">
+        <button class="btn tiny" id="briefBtn">Stage brief</button>
+        <button class="btn tiny" id="quizBtn">Quiz me</button>
+      </div>
+    </aside>
+
+    <!-- viewer -->
+    <div class="viewer panel">
+      <div class="viewer-top">
+        <div class="vt-left">
+          <span class="chip" id="stageChip">RTL</span>
+          <span class="vt-title" id="viewerTitle">Die view</span>
+        </div>
+        <div class="vt-right">
+          <label class="mini">Overlay
+            <select id="overlaySel"></select>
+          </label>
+          <button class="icon-btn sm" id="fitBtn" title="Fit die to view (or double-click the canvas)">Fit</button>
+          <button class="icon-btn sm" id="pngBtn" title="Download the current view as PNG">PNG</button>
+        </div>
+      </div>
+      <div class="canvas-host" id="canvasHost">
+        <canvas id="die" aria-label="Interactive chip layout view. Drag to pan, wheel to zoom, double-click to fit."></canvas>
+        <div class="hover-card" id="hoverCard" hidden></div>
+        <div class="canvas-hint" id="canvasHint">drag to pan · wheel to zoom · double-click to fit</div>
+        <div class="stage-flash" id="stageFlash" aria-hidden="true"></div>
+      </div>
+      <div class="layer-bar" id="layerBar" aria-label="Layer visibility"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- control deck -->
+    <aside class="deck panel" aria-label="Live design controls">
+      <h2 class="panel-t">Controls <em>live</em></h2>
+      <div class="deck-scroll" id="deckScroll"></div>
+      <div class="deck-foot">
+        <button class="btn tiny" id="defaultsBtn">Defaults</button>
+        <button class="btn tiny" id="exportBtn">Export report</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- metrics -->
+  <div class="metrics" id="metrics" aria-label="Design metrics"></div>
+
+  <!-- lower panel -->
+  <div class="lower panel">
+    <div class="tabs" role="tablist">
+      <button role="tab" class="tab on" data-tab="console">Console</button>
+      <button role="tab" class="tab" data-tab="brief">Stage brief</button>
+      <button role="tab" class="tab" data-tab="quiz">Interview &amp; quiz</button>
+      <button role="tab" class="tab" data-tab="reports">Reports</button>
+      <span class="tab-spacer"></span>
+      <button class="btn tiny ghost" id="clearLog">Clear log</button>
+    </div>
+    <div class="tab-body">
+      <div class="tab-pane on" id="pane-console"><div class="log" id="log"></div></div>
+      <div class="tab-pane" id="pane-brief"><div class="brief" id="brief"></div></div>
+      <div class="tab-pane" id="pane-quiz"><div class="quiz" id="quiz"></div></div>
+      <div class="tab-pane" id="pane-reports"><div class="reports" id="reports"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ LEARN ══════════════ -->
+<section id="learn" class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">The course</span>
+    <h2>Every stage, the way a PD engineer actually explains it</h2>
+    <p>Real work first. Then what happens inside the circuit. Then the topic. Then how you say it in an interview. Same order every time, so it sticks.</p>
+  </div>
+  <div class="learn-nav" id="learnNav"></div>
+  <div class="learn-body" id="learnBody"></div>
+</section>
+
+<!-- ══════════════ TOOLS ══════════════ -->
+<section id="tools" class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">Open source</span>
+    <h2>The real tools behind this lab</h2>
+    <p>This lab mirrors the OpenLane 2 step order on sky130A. Install these and you can run the same flow for real, on the same designs.</p>
+  </div>
+  <div class="tool-grid" id="toolGrid"></div>
+  <div class="pdk-note panel" id="pdkNote"></div>
+</section>
+
+<!-- ══════════════ ACCESS ══════════════ -->
+<section id="access" class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">Opening it</span>
+    <h2>One double-click. That is the whole setup.</h2>
+    <p>No terminal, no commands, nothing to remember. The icon starts the lab and opens this page by itself. If it is already running, the same icon just brings it back.</p>
+  </div>
+
+  <div class="access-grid">
+    <article class="panel access-hero">
+      <div class="hero-icon">
+        <img src="icon.svg" alt="PD Flow Lab icon" width="96" height="96" />
+        <span class="hero-pulse" aria-hidden="true"></span>
+      </div>
+      <div class="hero-copy">
+        <h3>Double-click <b>PD Flow Lab</b></h3>
+        <p>It sits on your Desktop and in your app menu. Press <kbd>Super</kbd> and type “PD Flow Lab” if you prefer the keyboard.</p>
+        <div class="hero-acts">
+          <button class="btn primary" id="iconBtn">Put the icon back</button>
+          <button class="btn" id="copyLinkBtn">Copy the link</button>
+          <a class="btn ghost" href="#lab">Back to the lab</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel access-card">
+      <h3>Make it even faster</h3>
+      <div class="access-row">
+        <div>
+          <b>Start automatically when I log in</b>
+          <span>Then the lab is always ready — just open the link or click the icon. Nothing runs until you log in, and you can switch this off any time.</span>
+        </div>
+        <div class="sw" id="autostartSw" role="switch" tabindex="0" aria-checked="false" aria-label="Start automatically when I log in"></div>
+      </div>
+      <div class="access-row">
+        <div>
+          <b>Keep it in one browser tab</b>
+          <span>Bookmark the link below so it is one click from your bookmarks bar.</span>
+        </div>
+        <button class="btn tiny" id="copyLinkBtn2">Copy</button>
+      </div>
+      <div class="access-link"><code id="labLink">http://127.0.0.1:5173/</code></div>
+    </article>
+
+    <article class="panel access-card">
+      <h3>Right now</h3>
+      <table class="access-state" id="accessState"></table>
+      <p class="access-note">Closing the browser tab does <b>not</b> stop the lab. Use the power button at the top to stop it, or just leave it — it uses almost nothing while idle.</p>
+      <button class="btn tiny ghost" id="refreshAccess">Refresh status</button>
+    </article>
+  </div>
+
+  <div class="panel access-terminal">
+    <h3>Prefer the terminal?</h3>
+    <div class="cmd">
+      <div class="cmd-h"><span>one command, same result</span><button class="copy-btn" id="copyCmd">copy</button></div>
+      <pre id="termCmd">cd ~/pd-flow-lab &amp;&amp; npm start</pre>
+    </div>
+    <p class="muted">Both routes do exactly the same thing. Nothing is uploaded — the server only listens on your own laptop.</p>
+  </div>
+</section>
+
+<!-- ══════════════ PROGRESS ══════════════ -->
+<section id="progress" class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">Your record</span>
+    <h2>What you can now explain, and what you have closed</h2>
+    <p>Experience here means you ran the stage, saw the failure, fixed it, and can say why. That is the difference between a fresher and someone with five years.</p>
+  </div>
+  <div class="prog-grid">
+    <div class="panel prog-card">
+      <h3>Competency checklist</h3>
+      <ul class="comp-list" id="compList"></ul>
+    </div>
+    <div class="panel prog-card">
+      <h3>Stage mastery</h3>
+      <div class="mastery" id="mastery"></div>
+    </div>
+    <div class="panel prog-card">
+      <h3>Runs &amp; tapeouts</h3>
+      <div class="stat-row" id="statRow"></div>
+      <h3 class="mt">Glossary you should own</h3>
+      <dl class="gloss" id="gloss"></dl>
+    </div>
+  </div>
+  <div class="prog-actions">
+    <button class="btn ghost" id="wipeBtn">Clear my progress</button>
+    <span class="muted">Saved in this browser only. Nothing is uploaded.</span>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <span>PD FLOW LAB · personal learning build · sky130A / sky130_fd_sc_hd model</span>
+  <span class="foot-start">
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 5h16v11H4z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 20h6M12 16v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10 8l4 2.5-4 2.5z" fill="currentColor"/></svg>
+    Open again later: double-click <b>PD Flow Lab</b> on your Desktop, or run <code>cd ~/pd-flow-lab &amp;&amp; npm start</code>
+  </span>
+  <span class="muted">Numbers are a teaching model, not a foundry-accurate simulator. Run OpenROAD for real signoff.</span>
+</footer>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<div class="stopped" id="stopped" hidden>
+  <div class="stopped-card panel">
+    <svg viewBox="0 0 24 24" width="42" height="42" aria-hidden="true"><path d="M12 3v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6.5 6.8a8 8 0 1011 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <h2>Lab switched off</h2>
+    <p>Your XP, quiz answers and settings are saved. Nothing was lost.</p>
+    <div class="stopped-how">
+      <img src="icon.svg" alt="" width="44" height="44" />
+      <span>To start again: double-click <b>PD Flow Lab</b> on your Desktop.</span>
+    </div>
+    <button class="btn primary" id="reconnectBtn">I started it — reconnect</button>
+    <span class="muted" id="reconnectMsg"></span>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

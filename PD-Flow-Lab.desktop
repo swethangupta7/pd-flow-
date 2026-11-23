@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PD Flow Lab
+GenericName=Physical Design Trainer
+Comment=Visual RTL to GDSII practice lab — opens straight in your browser
+Exec=/home/swethan/pd-flow-lab/start.sh --quiet
+Path=/home/swethan/pd-flow-lab
+Icon=/home/swethan/pd-flow-lab/icon.svg
+Terminal=false
+Categories=Education;Electronics;
+Keywords=VLSI;physical design;PD;floorplan;placement;CTS;routing;STA;GDSII;sky130;OpenROAD;
+StartupNotify=true
