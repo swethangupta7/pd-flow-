@@ -5,6 +5,7 @@ Learn VLSI physical design through an interactive flow lab and an illustrated te
 ## Use it in a browser
 
 - [Open the textbook](https://swethangupta7.github.io/pd-flow-/input-files.html)
+- [Open the STA and SDC interactive field guide](https://swethangupta7.github.io/pd-flow-/sta-sdc.html)
 - [Open the Flow Lab](https://swethangupta7.github.io/pd-flow-/)
 
 The sliders and design examples are simplified teaching models. They do not run an industrial EDA tool.

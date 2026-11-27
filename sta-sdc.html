@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f9f5ed">
+<title>STA & SDC · A Visual Field Guide</title>
+<style>
+:root{color-scheme:light;--bg:#f9f5ed;--ink:#26233c;--muted:#5d566d;--rule:#e0d7e5;--purple:#6743a6;--lavender:#eee5fb;--mint:#d9f2e6;--green:#176447;--amber:#faeac0;--red:#972f4a;--pink:#fae2e6;font:100%/1.55 system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}a{color:#53378a;text-underline-offset:.19em}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid #6a42a6;outline-offset:3px}
+.shell{width:min(100% - 2rem,76rem);margin:auto}.top{padding:.85rem 0;border-bottom:1px solid var(--rule)}.top .shell,.top nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem 1.2rem}.brand{font-weight:800;text-decoration:none}.hero{padding:2.1rem 0 1.8rem;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:2rem;align-items:center}.hero h1{font:700 clamp(2.5rem,7vw,5.2rem)/.97 Georgia,serif;letter-spacing:-.067em;margin:.15rem 0 .8rem}.hero p{color:var(--muted);max-width:54ch;margin:.6rem 0}.hero strong{color:var(--ink)}.kicker{font-size:.9rem;font-weight:800;color:#54368b}.hero-art{width:100%;display:block;max-height:15rem}
+.layout{display:grid;grid-template-columns:minmax(12rem,16rem) minmax(0,1fr);gap:1rem;align-items:start;padding-bottom:3rem}.toc{position:sticky;top:.65rem;background:#fffdf9;border:1px solid var(--rule);border-radius:1rem;padding:.85rem}.toc h2{font-size:1rem;margin:.05rem 0 .25rem}.toc p{font-size:.85rem;font-weight:750;color:var(--muted);margin:.55rem .4rem .15rem}.toc a{display:block;padding:.27rem .45rem;border-radius:.4rem;color:var(--ink);text-decoration:none;font-size:.91rem}.toc a:hover,.toc a[aria-current]{background:var(--lavender);color:#513487}.toc a[aria-current]{font-weight:750}
+.sheet{min-width:0;background:#fffdfb;border:1px solid var(--rule);border-radius:1.1rem;padding:clamp(.85rem,2.8vw,1.8rem)}h2,h3{line-height:1.15}.sheet h2{font:700 clamp(1.85rem,4vw,3.1rem)/1.07 Georgia,serif;margin:.14rem 0 .5rem;letter-spacing:-.035em}.sheet h3{font-size:1.15rem;margin:.15rem 0 .45rem}.sheet p{margin:.45rem 0;max-width:73ch}.sheet section+section{margin-top:1.35rem}.sheet header{margin-bottom:1rem}.plain{color:var(--muted)}
+.workbench{border:1px solid var(--rule);border-radius:.85rem;background:#f7f3ff;padding:clamp(.55rem,1.5vw,.95rem)}figure{margin:0}.graphic{overflow:auto;border:1px solid #dad0ed;background:#fff;border-radius:.62rem}.graphic svg{width:100%;min-width:510px;height:auto;display:block}.graphic text{font:600 14px system-ui,sans-serif;fill:var(--ink);text-anchor:middle;dominant-baseline:middle}.graphic .small{font-size:12px;fill:#5d566d}.graphic .rail{stroke:#c6bbd7;stroke-width:1.2}.graphic .event{stroke:#725e8d;stroke-width:1.4;stroke-dasharray:4 4}.graphic .wave{fill:none;stroke:#6743a6;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round}.graphic .data-wave{stroke:#027971}.graphic .cursor{fill:#fff;stroke:#673caa;stroke-width:3}.graphic .danger{fill:#fae2e6;stroke:#bd4764}.graphic .safe{fill:#d9f2e6;stroke:#329070}.graphic .part{fill:#eee5fb;stroke:#8258bd}.graphic .clock{fill:#faeac0;stroke:#946415}
+figcaption{padding:.52rem 0;color:var(--muted);min-height:3.25rem}figcaption strong{color:var(--ink)}.controls,.options,.choices,.footnav{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}.controls button,.controls select,.choices button,.option{border:1px solid #b7a4cc;background:#fff;border-radius:.45rem;color:var(--ink);padding:.32rem .6rem}.controls button[data-do=play]{background:#5e3b98;color:white;border-color:#5e3b98}.controls label{display:flex;align-items:center;gap:.35rem}.options{margin-top:.72rem;align-items:stretch}.option{flex:1 1 13rem;display:block}.option span{display:flex;justify-content:space-between;gap:.5rem;font-weight:680}.option input,.option select{width:100%;accent-color:#6743a6;margin:.25rem 0 0}.options:empty{display:none}.measurement{display:flex;flex-wrap:wrap;gap:.45rem .8rem;margin:.68rem 0 0;font-size:.9rem}.chip{background:#fff;border:1px solid var(--rule);border-radius:1rem;padding:.26rem .6rem}.chip.pass{color:var(--green);background:var(--mint)}.chip.fail{color:var(--red);background:var(--pink)}.chip.info{background:var(--amber)}
+pre{background:#252039;color:#f4ebff;border-radius:.6rem;overflow:auto;padding:.85rem;margin:.45rem 0;font: .9rem/1.55 ui-monospace,monospace;tab-size:2}.two{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.note{background:var(--mint);border-radius:.6rem;padding:.65rem .8rem}.cha{border:1px solid var(--rule);border-radius:.75rem;padding:.78rem;background:#faf6ff}.choices button[aria-pressed=true]{outline:2px solid var(--purple);outline-offset:-2px}.reply.good{color:var(--green)}.reply.bad{color:var(--red)}.reply:not(:empty){font-weight:650}.footnav{justify-content:space-between;margin-top:1.2rem;border-top:1px solid var(--rule);padding-top:.75rem}.short{font-size:.88rem;color:var(--muted)}.footnav a:empty{display:none}
+@media(max-width:760px){.hero{grid-template-columns:minmax(0,1fr);gap:.4rem;padding-top:1.4rem}.hero-art{max-height:10rem}.layout{grid-template-columns:minmax(0,1fr)}.toc{position:static}.toc nav{columns:2}.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:390px){.toc nav{columns:1}.shell{width:calc(100% - 1.1rem)}}
+@media print{.top,.toc,.controls,.options,.footnav,.choices{display:none}.layout{display:block}.hero{padding:0}.sheet,.workbench{background:white;border:0}.graphic svg{min-width:0}}
+</style>
+</head>
+<body>
+<header class="top"><div class="shell"><a class="brand" href="index.html">PD Flow Lab</a><nav aria-label="Site"><a href="input-files.html">Input Files</a><a href="#start">STA & SDC</a></nav></div></header>
+<main class="shell">
+<header class="hero" id="start">
+  <div><p class="kicker">Interactive timing field guide</p><h1>Can the signal<br>make it on time?</h1><p><strong>SDC</strong> (Synopsys Design Constraints) describes when data should arrive. <strong>STA</strong> (static timing analysis) checks those requirements using the circuit and its delay models. Follow one little signal from launch to capture, then change the rules and see what moves.</p></div>
+  <svg class="hero-art" viewBox="0 0 420 210" role="img" aria-label="A little signal travels from the launch register toward the capture register while a clock marks time">
+    <rect x="7" y="10" width="406" height="190" rx="34" fill="#eee5fb"/>
+    <path d="M65 62h38V41h45v21h45V41h45v21h45V41h49" stroke="#7754a7" stroke-width="3" fill="none" stroke-linejoin="round"/>
+    <rect x="34" y="104" width="102" height="60" rx="16" fill="#fff2c8" stroke="#a67b2f" stroke-width="2"/><text x="85" y="139" font-family="system-ui" font-size="15" text-anchor="middle" fill="#352a40">Launch</text>
+    <path d="M136 134H308m-12-7 12 7-12 7" fill="none" stroke="#745ba0" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
+    <circle cx="219" cy="134" r="24" fill="#c6f0da" stroke="#257958" stroke-width="2"/><circle cx="212" cy="130" r="2.2" fill="#273c32"/><circle cx="226" cy="130" r="2.2" fill="#273c32"/><path d="M214 139q5 5 10 0" fill="none" stroke="#273c32" stroke-linecap="round" stroke-width="1.8"/>
+    <rect x="307" y="104" width="85" height="60" rx="16" fill="#fff2c8" stroke="#a67b2f" stroke-width="2"/><text x="349.5" y="139" font-family="system-ui" font-size="15" text-anchor="middle" fill="#352a40">Capture</text>
+  </svg>
+</header>
+<div class="layout">
+  <aside class="toc"><h2>Contents</h2><nav id="toc" aria-label="Lessons"></nav></aside>
+  <article class="sheet" id="lesson" aria-labelledby="lesson-title"></article>
+</div>
+<noscript>This document uses JavaScript to show its timing lessons and run the diagrams.</noscript>
+</main>
+<script>
+'use strict';
+const C = '[get_clocks core_clk]';
+const clk = p => 'create_clock -name core_clk -period ' + p.toFixed(2) + ' [get_ports clk]';
+const fixed = n => n.toFixed(2);
+const ns = n => fixed(n) + ' ns';
+const signed = n => (n < 0 ? '−' : '+') + ns(Math.abs(n));
+const range = (key, label, min, max, step, initial, unit = 'ns') => ({key,label,min,max,step,initial,unit});
+const select = (key, label, choices, initial = 0) => ({key,label,choices,initial});
+const period = range('period','Clock period',5,16,.5,10);
+const latency = range('latency','Capture clock delay',0,1.5,.1,.3);
+const margin = range('margin','Setup uncertainty',0,1.5,.1,.2);
+const maxPath = range('maxPath','Longest data path',3,15,.2,8.4);
+const minPath = range('minPath','Shortest data path',.1,2,.05,.35);
+const slice = (a,b,c) => [a,b,c];
+
+const lessons = [
+{
+ id:'one-bit', group:'Start here', title:'One bit, two registers', view:'path',
+ intro:'A bit is a 0 or 1. A register is a tiny memory that keeps a bit. On a clock edge, one register launches a value, the value travels through gates and wires, and another register captures it.',
+ why:'STA stands for static timing analysis. It estimates whether circuit paths meet timing requirements using known delays and clock relationships. It can check paths without asking you to simulate every possible pattern of input bits.',
+ steps:slice('At a rising clock edge, the launch register samples its input. The new bit appears on Q after a small clock-to-Q delay.','Follow the bit through logic and metal wires toward the receiving register’s D input.','At the next chosen capture edge, the receive register needs the bit to be stable. STA checks the time margin.'),
+ code:()=>clk(10)+'\n# In the OpenSTA console:\nreport_checks -path_delay min_max',
+ syntax:'create_clock gives a timing reference to the design port clk. report_checks is a reporting command, entered in the STA console. It asks for both minimum and maximum path checks.',
+ engineer:'Find the exact startpoint and endpoint in the report. Q is the sending register’s output. D is the receiving register’s data input. Then confirm that the reported clocks match the design intent.',
+ quiz:['Which pin receives new data at the capture register?','D','Q','D is the data input. Q is the bit the register is currently holding.']
+},
+{
+ id:'period', group:'Start here', title:'Clock edges, period and frequency', view:'clock', inputs:[period],
+ intro:'A clock repeats high and low. A rising edge is the instant it goes from low to high. A period is the time from one rising edge to the next.',
+ why:'The clock gives registers a shared schedule. A 10 ns period means 100 million cycles per second, or 100 MHz.',
+ steps:slice('Mark the first rising edge at 0 ns.','Find the next rising edge. The gap between the two is one period.','Shorten the period. More cycles fit into the same time span, while a typical one-cycle path gets less time.'),
+ code:v=>clk(v.period),
+ syntax:'-period gives the spacing between equivalent edges. This guide assumes time units of ns. With no waveform specified in this example, the falling edge is halfway through the cycle.',
+ engineer:'Check the collection returned by get_ports clk and verify that report_clock_properties shows the intended clock. Compare period and frequency using the reporting units.',
+ quiz:['If the period changes from 10 ns to 5 ns, what happens to frequency?','It doubles.','It halves.','Frequency in MHz is 1000 divided by the period in ns.']
+},
+{
+ id:'setup', group:'Time checks', title:'Setup · arrive before the deadline',view:'timing',check:'setup',inputs:[period,maxPath],
+ intro:'Imagine a photo. The subject has to be in place just before the picture is taken. A register likewise needs stable data before the capture edge. That small safety interval is called setup time.',
+ why:'A late value risks capturing the previous bit or an unreliable value. Setup uses the latest data arrival and a required deadline.',
+ steps:slice('Mark the next capture edge. This is when the receiver samples the bit.','Move backward from the capture edge by 0.50 ns of cell setup time and the uncertainty margin. This is the latest allowed arrival.','Compare the latest data arrival with the deadline. Setup slack equals required time minus arrival time.'),
+ code:v=>clk(v.period)+'\nset_clock_uncertainty -setup 0.20 '+C+'\n# In the OpenSTA console:\nreport_checks -path_delay max',
+ syntax:'The period and uncertainty come from SDC. The receiving cell’s setup check and the data-path delay models come from Liberty and interconnect data.',
+ engineer:'Check the failure’s startpoint, endpoint, clock edges and scenario. If the constraint is accurate, inspect which cells and wires took the most time before deciding what to fix.',
+ quiz:['Data arrives at 9.3 ns and is required by 9.0 ns. What is setup slack?','−0.3 ns','+0.3 ns','Required minus arrival is 9.0 − 9.3 = −0.3 ns. The bit arrived late.']
+},
+{
+ id:'hold', group:'Time checks',title:'Hold · keep the old bit long enough',view:'timing',check:'hold',inputs:[period,minPath],
+ intro:'Just after the capture edge, the receiver still needs its old input to stay steady for a moment. The hold check asks whether the new bit races in too soon.',
+ why:'A very fast path can disturb the value the receiver is still capturing. This example uses the same launch and capture edge, so changing the period alone leaves hold slack unchanged.',
+ steps:slice('Mark the capture edge for the old bit. The new bit starts from the launch register on the same source edge.','Move forward by 0.25 ns of hold time and 0.10 ns of hold uncertainty to find the earliest safe change.','Compare the earliest new data arrival to the safe-change time. Hold slack equals arrival time minus required time.'),
+ code:v=>clk(v.period)+'\nset_clock_uncertainty -hold 0.10 '+C+'\n# In the OpenSTA console:\nreport_checks -path_delay min',
+ syntax:'The hold uncertainty reserves 0.10 ns. The capture cell’s hold check comes from its library model. The timing console reports minimum-delay paths.',
+ engineer:'Read the early data path and clock arrival times. A deliberate data delay can help hold. Recheck setup and all required scenarios after changing the path.',
+ quiz:['With the same-edge relationship shown here, does a longer period repair hold?','No, the edge and earliest safe change stay put.','Yes, the hold deadline gets a full extra cycle.','This same-edge hold check compares events near the same source edge. The next-cycle period belongs to the setup example.']
+},
+{
+ id:'skew',group:'Time checks',title:'Clock latency and skew',view:'timing',check:'setup',inputs:[latency,select('kind','Compare check',['Setup','Hold'])],
+ intro:'Latency is the time a clock edge spends traveling. Skew is the difference between the time it reaches the sending and receiving registers.',
+ why:'If only the receiving clock arrives later, the setup deadline moves later. In this same-edge example the earliest safe hold change also moves later, making hold harder.',
+ steps:slice('Keep the launch clock at the reference time.','Move the capture clock. The difference between its arrival and the launch clock arrival is the skew in this model.','Switch between setup and hold. Follow which requirement moves and see how the same skew affects both checks.'),
+ code:()=> 'set_clock_latency -source 0.30 '+C+'\n# For a propagated clock after a real tree exists:\n# set_propagated_clock '+C,
+ syntax:'The first line is an example of shared source latency before the clock definition point. The slider changes endpoint capture latency to illustrate skew. Real endpoint latency may come from propagated clock-tree delays. These are distinct quantities.',
+ engineer:'Compare the launch and capture clock paths in the timing report. Confirm whether clocks are ideal or propagated, and where the source latency is modeled.',
+ quiz:['In this model, what can later capture clock arrival do to hold?','Make it harder.','Always make it easier.','The old value is captured later, so that value must remain steady until a later time.']
+},
+{
+ id:'uncertainty',group:'Time checks',title:'Clock uncertainty · reserve room',view:'timing',check:'setup',inputs:[margin,maxPath],
+ intro:'A real clock edge can arrive a little earlier or later than expected. Uncertainty reserves extra timing margin for effects such as jitter, according to the design’s timing methodology.',
+ why:'With more setup uncertainty, data must be ready sooner. Hold uncertainty usually pushes the earliest allowed change later for the example check.',
+ steps:slice('Mark the nominal capture edge.','Subtract setup time and the selected uncertainty to leave a safe reserve.','Increase uncertainty and observe the deadline move without changing the actual data path.'),
+ code:v=>clk(10)+'\nset_clock_uncertainty -setup '+fixed(v.margin)+' '+C,
+ syntax:'-setup applies the value to setup checks for the selected clock. A separate -hold line can specify a different hold margin.',
+ engineer:'Trace each margin to the timing specification. Review the clock relationship and avoid counting an allowance twice when the flow models it elsewhere.',
+ quiz:['If setup uncertainty rises, what happens to setup slack with the data path fixed?','It shrinks.','It grows.','The deadline moves earlier by the added margin while arrival time stays the same.']
+},
+{
+ id:'input',group:'Write SDC',title:'Input delay · data from outside',view:'timing',check:'setup',inputs:[range('input','Latest external arrival',0,6,.25,2)],
+ intro:'A signal from another chip takes time to reach this chip. Input delay tells STA when that external signal can reach the input port relative to its reference clock.',
+ why:'If the external device and board use 2 ns before the bit reaches the chip, that time has already been spent by the time the internal logic begins.',
+ steps:slice('Treat the reference clock edge as time zero outside the chip.','The bit reaches the input port after the external delay. The internal path then adds 7.0 ns in this example.','Compare the combined arrival with the capture deadline. Increase the external delay to see how it can create a setup failure.'),
+ code:v=>clk(10)+'\nset_input_delay -clock core_clk -max '+fixed(v.input)+' [get_ports din]\nset_input_delay -clock core_clk -min 0.40 [get_ports din]',
+ syntax:'-max models latest arrival for the example setup check. -min supplies an independent earliest arrival for hold. The slider changes only -max.',
+ engineer:'Use the interface timing budget to confirm the reference clock, external device delay, board delay, phase, and both min and max assumptions.',
+ quiz:['Should you use the latest input arrival for both setup and hold?','No. Hold needs the earliest relevant arrival.','Yes. Max delay covers both.','Setup and hold check different extremes, so they need independently derived input values.']
+},
+{
+ id:'output',group:'Write SDC',title:'Output delay · leave time outside',view:'timing',check:'setup',inputs:[range('output','Time reserved outside the chip',0,5,.25,2)],
+ intro:'A bit leaving this chip still needs to travel across the board and reach an external receiver. Output delay reserves part of the timing budget for that outside journey.',
+ why:'In this simple case the receiving edge is at 10 ns. Reserving 2 ns means the internal port must be ready at 8 ns.',
+ steps:slice('Locate the external receiver’s reference edge at 10 ns.','Subtract the external time budget. The resulting deadline is measured at the chip’s output port.','Try a larger external budget. If the chip output still arrives at 7.5 ns, the remaining margin can disappear.'),
+ code:v=>clk(10)+'\nset_output_delay -clock core_clk -max '+fixed(v.output)+' [get_ports dout]\nset_output_delay -clock core_clk -min -0.30 [get_ports dout]',
+ syntax:'-max reserves the external setup budget. The separate -min value uses the SDC sign convention and can be negative after accounting for the external hold requirement.',
+ engineer:'Derive the port requirements from interface timing and board delays. Check output direction, the external clock relationship, and the min-delay sign convention.',
+ quiz:['An outside receiver captures at 10 ns and needs a 3 ns budget. When is this example chip’s output due?','7 ns','13 ns','Subtract the external budget from the capture edge.']
+},
+{
+ id:'generated',group:'Write SDC',title:'Generated clock · follow the parent',view:'clock',inputs:[period,select('divide','Divider',['÷2','÷3','÷4'])],
+ intro:'Circuitry can derive a new clock from an existing clock. A divider can make one cycle of the new clock for every two, three, or four parent cycles.',
+ why:'STA needs to know how parent and derived clock edges relate. Two clocks with the same nominal frequencies can have different edge relationships.',
+ steps:slice('Draw the parent clock and find its rising edges.','Follow the generated clock at the divider’s Q pin. The selected ratio controls the spacing of its rising edges.','Compare the parent and generated rising edges. These are the relationships STA uses to schedule timing checks.'),
+ code:v=>clk(v.period)+'\ncreate_generated_clock -name divided \\\n  -source [get_ports clk] -divide_by '+(v.divide+2)+' [get_pins u_div/Q]',
+ syntax:'-source names the parent reference point. -divide_by describes the ratio. The last pin is where the generated clock is defined. The diagram illustrates rising-edge relationships and draws a schematic 50% duty cycle.',
+ engineer:'Verify implementation, source pin, generated pin, ratio and phase. Check reported waveforms when the divider’s output duty cycle matters.',
+ quiz:['What is the period of a ÷2 clock when the parent period is 5 ns?','10 ns','2.5 ns','One divided cycle takes two parent periods.']
+},
+{
+ id:'false-path',group:'Write SDC',title:'False path · scope the exception',view:'exception',inputs:[select('excluded','Timing exception',['Off','On'])],
+ intro:'A false-path exception asks STA to skip selected normal timing checks. An example is carefully excluding specified asynchronous transfers into the first stage of a synchronizer.',
+ why:'Two unrelated clocks do not have the fixed edge relationship assumed by a normal synchronous setup check. The crossing still needs a sound synchronization design and verification.',
+ steps:slice('Identify the unrelated source clock and the exact first-stage destination.','Apply the exception only to the intended clock-to-pin paths. Toggle it to see which analysis check changes.','Follow the connection again. The wire is still present and the crossing still needs its own verification.'),
+ code:v=>'# Scope to the intended asynchronous crossing\n'+(v.excluded?'':'# ' )+'set_false_path -from [get_clocks ext_clk] -to [get_pins u_sync1/D]',
+ syntax:'-from selects paths launched by ext_clk. -to limits the exception to the synchronizer’s first data pin. It leaves downstream checks between the synchronizer stages in scope for normal analysis.',
+ engineer:'Confirm the clock-domain crossing structure, review the exception’s matched endpoints, and verify that ordinary same-clock paths still report normally.',
+ quiz:['Does this exception remove the physical connection?','No, it changes the selected timing checks.','Yes, routing erases it.','The netlist still defines the connection. The SDC tells STA which checks to skip.']
+},
+{
+ id:'multicycle',group:'Write SDC',title:'Multicycle · move an allowed capture edge',view:'timing',check:'setup',inputs:[period,select('cycles','Capture every…',['1 cycle','2 cycles','3 cycles'],1)],
+ intro:'Most same-clock paths are checked against the next edge. Some circuits only capture selected data every second or third cycle because their control logic deliberately allows more time.',
+ why:'A justified multicycle constraint tells STA about the actual transfer schedule. It cannot make a slow single-cycle circuit work.',
+ steps:slice('Start at the launch edge and look at the repeating capture edges.','Pick the edge on which the circuit actually allows capture. The setup deadline moves with that edge.','Inspect setup slack and the paired hold command. In a real report, verify both launch and capture edge pairs.'),
+ code:v=>v.cycles===0 ? '# Default: one-cycle setup for this same-clock path' : 'set_multicycle_path '+(v.cycles+1)+' -setup \\\n  -from [get_cells u_launch] -to [get_cells u_cap]\nset_multicycle_path '+v.cycles+' -hold \\\n  -from [get_cells u_launch] -to [get_cells u_cap]',
+ syntax:'For this same-clock example, an N-cycle setup exception is paired with an N−1 hold adjustment to preserve the intended hold relationship. Other clock relationships require checking the actual edge selection.',
+ engineer:'Demand evidence from the register enables or transfer protocol. Check exception scope and both edge pairs in reports. Negative slack alone is never a reason to introduce an exception.',
+ quiz:['What proves that a two-cycle exception is allowed?','The circuit’s transfer protocol or enables.','A failing single-cycle timing report.','An exception describes behavior already guaranteed by the hardware.']
+},
+{
+ id:'load',group:'Read STA',title:'Cell delay, wire delay, slew and load',view:'timing',check:'setup',inputs:[range('load','Output load',1,12,.5,5,'fF'),range('slew','Input transition',.1,1.2,.05,.35)],
+ intro:'Slew is how long a signal takes to change voltage. Load describes the capacitance the driver has to charge. Cell delay describes time through a gate, and wire delay describes time spent crossing interconnect.',
+ why:'A gate driving more capacitance often switches more slowly. The next gate sees that edge and uses its own timing model to calculate a new delay.',
+ steps:slice('Identify the capture edge and deadline for the example path.','Increase output load or input transition time. This model moves data arrival while the clock deadline stays fixed.','Separate the illustrated cell contribution from the fixed 1.20 ns wire contribution. Real analyzers calculate these from library models and extracted wire parasitics.'),
+ code:v=>'# Example boundary constraints on separate design ports\nset_input_transition '+fixed(v.slew)+' [get_ports din]\nset_load '+fixed(v.load)+' [get_ports dout]',
+ syntax:'Input transition and output load can be set for boundary ports. The slider also illustrates how slew and load can affect gate delay inside a path. In an actual design, internal slew and load are normally calculated, and command units come from the timing session.',
+ engineer:'Look for a growing incremental delay or a bad transition. Check upstream drive, fan-out, pin capacitance and wire parasitics before selecting a fix.',
+ quiz:['Can upsizing a driver also affect the gate before it?','Yes, the bigger input can load its upstream driver.','No, all effects travel downstream.','A new cell can change the electrical load seen by the preceding driver.']
+},
+{
+ id:'coverage',group:'Read STA',title:'Missing clocks and unconstrained paths',view:'exception',inputs:[select('covered','Capture clock constraint',['Missing','Present'])],
+ intro:'An unconstrained path lacks the information needed for a particular timing check. A missing clock or input/output timing budget can leave real behavior unchecked.',
+ why:'A report with no negative slack only describes the checks that ran. It cannot tell you whether an unchecked path meets its requirement.',
+ steps:slice('Find the real connection from the sending output to the receiving input.','Toggle the clock constraint. A missing capture clock leaves this toy path without a setup deadline.','Check coverage first and timing slack second. A path without a deadline should lead to an investigation.'),
+ code:v=>(v.covered?clk(10):'# Missing create_clock on clk')+'\n# In the OpenSTA console:\ncheck_setup -verbose\nreport_checks -unconstrained',
+ syntax:'The first line creates a clock when present. The console commands help identify incomplete setup and inspect paths missed by normal constrained reporting.',
+ engineer:'Check that port and pin queries match objects, that clocks reach intended registers, and that all active I/O and generated clocks have the required constraints.',
+ quiz:['There are no reported violations, but a real clock is missing from SDC. Can you sign off timing?','No. First verify the intended checks were covered.','Yes. No violations means every path passed.','A path without a required check cannot have proved that it passes.']
+},
+{
+ id:'corners',group:'Read STA',title:'Modes, corners and analysis scenes',view:'timing',check:'setup',inputs:[select('scene','Analysis scene',['Functional · nominal','Functional · slow','Scan · fast']),select('kind','Compare check',['Setup','Hold'])],
+ intro:'A mode is how the chip is used, such as normal operation or factory scan test. A corner represents cell and wire behavior under selected conditions. An analysis scene combines a mode with its corner models.',
+ why:'A path can meet timing under one set of conditions and fail under another. Slow behavior tends to stress setup and fast behavior can stress hold, but the reports decide which scene is actually worst.',
+ steps:slice('Pick a scene and identify which clock and conditions it models.','Compare the path arrival as you switch scene or check type. Both the assumed delay and the mode clock can change.','Record which scene fails each check. Repeat for all scenes required by your project.'),
+ code:v=>['report_checks -scenes {func_tt} -path_delay min_max','report_checks -scenes {func_ss} -path_delay min_max','report_checks -scenes {scan_ff} -path_delay min_max'][v.scene],
+ syntax:'This example OpenSTA console command assumes the named scene has already been defined using its mode SDC, Liberty and SPEF inputs. It reports both minimum and maximum timing checks.',
+ engineer:'Check analysis-view coverage, constraints, cell corner and parasitic annotation before comparing slack. Record the mode, corner, check type and logical endpoint with each failure.',
+ quiz:['Does good functional setup slack prove scan hold passes?','No. They are different checks and scenarios.','Yes. Passing setup implies clean hold.','Check each required scene and both the latest and earliest data behavior.']
+},
+{
+ id:'report',group:'Read STA',title:'Debug a failing path like a PD engineer',view:'timing',check:'setup',inputs:[period,select('repair','Try a data-path change',['Original path','Reduce wire delay','Speed up one logic stage'])],
+ intro:'A timing report is a receipt for the path’s time. Read the start and end, clock edges, arrival, required time, and slack. Then read what each stage contributed.',
+ why:'Different causes need different fixes. A bad constraint requires evidence and correction. An accurately constrained slow physical path needs a physical or logical change.',
+ steps:slice('Identify the startpoint and endpoint. This example checks u_launch to u_cap in a functional scene.','Read the deadline from the clock and margins. Trace the late arrival through the cell and wire contributions.','Try a repair. Watch the slack and record what moved. A real repair must be checked again for hold and in all required scenes.'),
+ code:()=> 'report_checks -from [get_cells u_launch] -to [get_pins u_cap/D] \\\n  -path_delay max -format full_clock_expanded\nreport_checks -from [get_cells u_launch] -to [get_pins u_cap/D] -path_delay min',
+ syntax:'The first report expands the clock details for setup diagnosis. The minimum-delay report helps ensure a change that speeds up data still leaves an adequate hold margin.',
+ engineer:'Use this order: validate the scenario and constraints, identify the path, locate the dominant increments, make one justified change, then rerun max and min with updated parasitics.',
+ quiz:['You shortened a route and setup now passes. What is your next timing check?','Rerun hold and all required timing scenarios.','Assume the whole design now passes.','Earlier arrival can remove hold margin. Check both timing extremes after an ECO, meaning an engineering change.']
+}
+];
+const $ = id => document.getElementById(id);
+const escape = x => String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n,u) => (u==='fF' ? n.toFixed(1) : fixed(n))+' '+u;
+let lesson, values, step, playing, progress, lastTime, animation, speed=1;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const label = (x,y,text,tone='') => '<text x="'+x+'" y="'+y+'" class="'+tone+'">'+escape(text)+'</text>';
+const line = (x1,y1,x2,y2,kind='rail') => '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="'+kind+'"/>';
+const box = (x,y,w,h,style,r=10) => '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+r+'" class="'+style+'"/>';
+const dot = (x,y,r=5) => '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" class="cursor"/>';
+const svg = (body, alt, height=207) => '<svg viewBox="0 0 720 '+height+'" role="img" aria-label="'+escape(alt)+'">'+
+  '<defs><marker id="flow-arrow" markerWidth="7" markerHeight="7" refX="6.2" refY="3.4" orient="auto" viewBox="0 0 7 7"><path d="M0 0L7 3.5L0 7Z" fill="#6743a6"/></marker></defs>'+body+'</svg>';
+const path = (points,style='wave')=>'<polyline points="'+points+'" class="'+style+'"/>';
+const arrow = (x,y,end)=>'<path d="M'+x+' '+y+'H'+end+'" class="wave" marker-end="url(#flow-arrow)"/>';
+const chip = (text,state='')=>'<span class="chip '+state+'">'+escape(text)+'</span>';
+const position = (min,max,left=132,right=669) => n => left+(n-min)*(right-left)/(max-min);
+const round=n=>Math.round(n*100)/100;
+
+function timingModel(id,v){
+  const defaults={check:v.kind===1?'hold':'setup',period:v.period??10,skew:0,setupMargin:v.margin??.2,holdMargin:.1,
+    setupTime:.5,holdTime:.25,late:v.maxPath??8.4,early:v.minPath??.35,cycles:1,external:0,wire:0,cells:0};
+  const overrides={
+    skew:()=>({skew:v.latency}),
+    input:()=>({late:v.input+7,external:v.input}),
+    output:()=>({setupTime:0,setupMargin:0,late:7.5,external:v.output}),
+    multicycle:()=>({cycles:v.cycles+1,late:12.4}),
+    load:()=>{const cells=5.7+.20*v.load+v.slew;return {cells,wire:1.2,late:cells+1.2};},
+    corners:()=>[{period:10,late:8.4,early:.52},{period:10,late:10.1,early:.64},{period:14,late:6.5,early:.22}][v.scene],
+    report:()=>{const [cells,wire]=[[6.3,3.4],[6.3,2.6],[5.7,3.4]][v.repair];return{cells,wire,late:cells+wire};}
+  };
+  const m={...defaults,...overrides[id]?.()};
+  const isHold=id==='hold'||m.check==='hold';
+  const edge=(isHold?0:m.period*m.cycles)+m.skew;
+  const reserve=isHold?m.holdTime+m.holdMargin:m.setupTime+m.setupMargin+(id==='output'?m.external:0);
+  const required=round(isHold?edge+reserve:edge-reserve);
+  const arrival=round(isHold?m.early:m.late);
+  const slack=round(isHold?arrival-required:required-arrival);
+  return {...m,isHold,edge,reserve,required,arrival,slack};
+}
+
+function renderTiming(m) {
+  const max=m.isHold?Math.max(2.2,m.edge+.7,m.arrival+.35):Math.max(m.edge,m.arrival,m.period)+.8;
+  const min=m.isHold?-.2:-.4;
+  const x=position(min,max);
+  const y=167;
+  const edge=x(m.edge), req=x(m.required), arr=x(m.arrival);
+  const active=step===2 && playing && !reduced.matches;
+  const bad=m.slack<0;
+  const displayed = (step>=2 ? 3 : step+1);
+  let drawing=label(62,58,'Clock edge','small')+label(63,100,'Data deadline','small')+label(63,143,'Data arrival','small');
+  drawing+=line(132,58,669,58)+line(132,100,669,100)+line(132,143,669,143)+line(132,y,669,y);
+  const rawWidth=max-min;
+  const tickEvery=rawWidth>19?5:rawWidth>6?2:rawWidth>3?1:.5;
+  for(let n=0;n<max;n+=tickEvery){
+    drawing+=line(x(n),y,x(n),y+5)+label(x(n),y+18,n+' ns','small');
+  }
+  if(m.cycles>1){
+    for(let n=1;n<m.cycles;n++) drawing+=line(x(n*m.period),45,x(n*m.period),65,'event');
+  }
+  drawing+=line(edge,26,edge,152,'event')+dot(edge,58)+label(Math.min(649,Math.max(157,edge)),17,ns(m.edge),'small');
+  if(displayed>=2){
+    if(m.reserve>0) drawing+=box(Math.min(edge,req),90,Math.max(2,Math.abs(edge-req)),20,'danger',4);
+    const deadlineWord=m.isHold?'Earliest safe change':'Latest safe arrival';
+    drawing+=line(req,81,req,152,'event')+dot(req,100)+label(360,210,deadlineWord+' · '+ns(m.required),'small');
+  }
+  if(displayed===3){
+    if(lesson.id==='input') drawing+=line(x(m.external),126,x(m.external),152,'event');
+    drawing+=box(Math.min(req,arr),136,Math.max(2,Math.abs(req-arr)),14,bad?'danger':'safe',4);
+    drawing+=dot(arr,143)+label(540,210,'Arrival · '+ns(m.arrival),'small');
+    if(active) drawing+=dot(x(m.arrival*Math.min(1,progress*1.3)),143,7);
+  }
+  return svg(drawing,lesson.title+'. Capture edge '+ns(m.edge)+(step>=1?', deadline '+ns(m.required):'')+(step===2?', arrival '+ns(m.arrival)+', slack '+signed(m.slack):''),227);
+}
+
+function squareWave(x,y,period,max){
+  const pts=[[x(0),y+11],[x(0),y-11]];
+  for(let n=period/2,i=1;n<max;n+=period/2,i++){
+    const from=i%2?y-11:y+11;
+    pts.push([x(n),from],[x(n),2*y-from]);
+  }
+  pts.push([x(max),pts.at(-1)[1]]);
+  return pts.map(a=>a.join(',')).join(' ');
+}
+
+function renderClock() {
+  const p=values.period, isDerived=lesson.id==='generated', div=(values.divide??0)+2;
+  const max=isDerived?5*p:Math.max(24,2*p+.5);
+  const x=position(0,max,126,670);
+  let g=label(55,60,isDerived?'Parent':'Clock','small')+path(squareWave(x,60,p,max));
+  g+=line(126,165,670,165)+line(x(0),36,x(0),165,'event')+label(x(0),183,'0 ns','small');
+  for(let n=p;n<=max;n+=p) g+=line(x(n),151,x(n),165,'event')+label(x(n),183,fixed(n).replace(/\.00$/,'')+' ns','small');
+  if(isDerived&&step>=1){
+    g+=label(57,114,'Generated','small')+path(squareWave(x,114,p*div,max),'wave data-wave');
+    g+=line(x(div*p),36,x(div*p),165,'event')+dot(x(div*p),103);
+  }
+  if(step>=1&&!isDerived) g+=dot(x(p),49)+label((x(0)+x(p))/2,110,'One period · '+ns(p),'small')+arrow(x(0),128,x(p));
+  if(playing&&!reduced.matches) g+=dot(x(max*progress),151,6);
+  const alt='Clock with rising edges every '+ns(p)+(isDerived&&step>=1?' and generated edges every '+ns(p*div):'');
+  return svg(g,alt);
+}
+
+function renderPath() {
+  const asyncPath=lesson.id==='false-path', coverage=lesson.id==='coverage';
+  const launch=asyncPath?'ext_clk domain':'Launch · Q';
+  const capture=asyncPath?'u_sync1 · D':'Capture · D';
+  const stage=asyncPath?'Crossing wire':'Gates + wires';
+  const status=asyncPath?(values.excluded?'Selected timing checks skipped':'Exception inactive'):
+    coverage?(values.covered?'Capture edge defined':'No capture clock defined'):'The receiver samples D';
+  let g=label(132,37,launch)+label(360,37,stage)+label(586,37,capture)+
+    box(54,67,156,68,step===0?'safe':'part')+box(284,72,151,58,step===1?'safe':'part')+box(508,67,156,68,step===2?'safe':'part')+
+    label(132,101,asyncPath?'Source bit':'Register A')+label(360,101,asyncPath?'Signal path':'Logic + metal')+label(586,101,asyncPath?'First sync stage':'Register B')+
+    arrow(210,101,282)+arrow(435,101,506);
+  if(playing&&!reduced.matches){
+    const [lo,hi]=[[132,210],[210,506],[506,586]][step];
+    const x=lo+(hi-lo)*progress;
+    g+=dot(x,101,10)+'<circle cx="'+(x-3)+'" cy="99" r="1.25" fill="#6743a6"/><circle cx="'+(x+3)+'" cy="99" r="1.25" fill="#6743a6"/>';
+  }
+  if(step>=1) {
+    const bad=(coverage&&!values.covered)||(asyncPath&&values.excluded);
+    g+=box(186,153,348,34,bad?'clock':'safe')+label(360,170,status);
+  }
+  return svg(g,lesson.title+'. '+launch+' connects through '+stage+' to '+capture+(step>=1?'. '+status:'.'));
+}
+
+function metrics(m) {
+  if(lesson.view==='clock'){
+    const p=values.period;
+    return chip('Period '+ns(p))+chip('Frequency '+(1000/p).toFixed(1)+' MHz')+
+       (lesson.id==='generated'?chip('Generated period '+ns(p*(values.divide+2)),'info'):'');
+  }
+  if(!m) return '';
+  return chip('Capture edge '+ns(m.edge))+chip((m.isHold?'Earliest change ':'Deadline ')+ns(m.required))+
+    chip('Arrival '+ns(m.arrival))+chip((m.isHold?'Hold':'Setup')+' slack '+signed(m.slack)+(m.slack<0?' · VIOLATION':' · MET'),m.slack<0?'fail':'pass')+
+    (m.wire?chip('Cell contribution '+ns(m.cells))+chip('Wire contribution '+ns(m.wire)):'');
+}
+
+function report(m){
+  if(!m)return '';
+  const rows=[
+    'Check       '+(m.isHold?'Hold / minimum delay':'Setup / maximum delay'),
+    'Capture     '+ns(m.edge),
+    'Required    '+ns(m.required),
+    'Arrival     '+ns(m.arrival),
+    'Slack       '+signed(m.slack)+'  '+(m.slack<0?'VIOLATED':'MET')
+  ];
+  if(lesson.id==='report') rows.unshift('Startpoint  u_launch/Q','Endpoint    u_cap/D','Scenario    Functional example');
+  return '<h3>Read the numbers</h3><pre>'+escape(rows.join('\n'))+'</pre>';
+}
+
+function draw(){
+  const m=lesson.view==='timing'?timingModel(lesson.id,values):null;
+  $('graphic').innerHTML=m?renderTiming(m):lesson.view==='clock'?renderClock():renderPath();
+}
+
+function showStep(){
+  draw();
+  const m=lesson.view==='timing'?timingModel(lesson.id,values):null;
+  $('caption').innerHTML='<strong>Step '+(step+1)+' of '+lesson.steps.length+'</strong> · '+escape(lesson.steps[step]);
+  $('measure').innerHTML=metrics(m);
+  $('timing-report').innerHTML=report(m);
+  $('syntax').textContent=lesson.code(values);
+  for(const out of $('settings').querySelectorAll('output')){
+    const input=lesson.inputs.find(item=>item.key===out.dataset.value);
+    out.textContent=fmt(values[input.key],input.unit);
+    $(input.key).setAttribute('aria-valuetext',out.textContent);
+  }
+  showControls();
+}
+
+const moveButtons={
+  play:'Play',pause:'Pause',restart:'Restart',previous:'Previous step',next:'Next step'
+};
+function showControls(){
+  const disabled={play:playing,pause:!playing,previous:step===0,next:step===lesson.steps.length-1};
+  for(const b of $('lesson').querySelectorAll('[data-do]')) b.disabled=Boolean(disabled[b.dataset.do]);
+}
+function pause(){
+  cancelAnimationFrame(animation);
+  playing=false;
+}
+function updateStep(index){
+  step=index;
+  progress=0;
+  showStep();
+}
+function tick(now){
+  if(!playing)return;
+  progress+=(now-lastTime)*speed/3200;
+  lastTime=now;
+  if(progress>=1){
+    if(step===lesson.steps.length-1){pause();draw();showControls();return;}
+    updateStep(step+1);
+  }else if(!reduced.matches){
+    // Only redraw the small diagram. Sliders and screen-reader captions stay stable.
+    draw();
+  }
+  animation=requestAnimationFrame(tick);
+}
+function play(){
+  if(playing)return;
+  if(step===lesson.steps.length-1&&progress>=1)updateStep(0);
+  playing=true;
+  lastTime=performance.now();
+  showControls();
+  animation=requestAnimationFrame(tick);
+}
+
+function setting(item){
+  const {key,label,min,max,step,initial,choices}=item;
+  const keyAttr=' id="'+key+'" data-value="'+key+'"';
+  if(choices)return '<label class="option" for="'+key+'"><span>'+escape(label)+'</span><select'+keyAttr+'>'+
+    choices.map((word,i)=>'<option value="'+i+'"'+(i===initial?' selected':'')+'>'+escape(word)+'</option>').join('')+'</select></label>';
+  return '<label class="option" for="'+key+'"><span>'+escape(label)+' <output for="'+key+'" data-value="'+key+'"></output></span>'+
+    '<input type="range"'+keyAttr+' min="'+min+'" max="'+max+'" step="'+step+'" value="'+initial+'"></label>';
+}
+
+function render(useFocus){
+  pause();
+  lesson=lessons.find(item=>'#'+item.id===location.hash)??lessons[0];
+  values=Object.fromEntries((lesson.inputs??[]).map(item=>[item.key,item.initial]));
+  step=0; progress=0;
+  const index=lessons.indexOf(lesson);
+  $('toc').innerHTML=[...new Set(lessons.map(x=>x.group))].map(group=>'<p>'+group+'</p>'+lessons.filter(x=>x.group===group).map(x=>
+    '<a href="#'+x.id+'"'+(x===lesson?' aria-current="location"':'')+'>'+escape(x.title)+'</a>').join('')).join('');
+  const adjacent=(item,prefix)=>item?'<a href="#'+item.id+'">'+prefix+' · '+escape(item.title)+'</a>':'<a></a>';
+  const [question,correct,other]=lesson.quiz;
+  const choice=(value,answer)=>'<button type="button" aria-pressed="false" data-choice="'+value+'">'+escape(answer)+'</button>';
+  const answers=index%2===0?choice(true,correct)+choice(false,other):choice(false,other)+choice(true,correct);
+  $('lesson').innerHTML='<header><p class="kicker">'+escape(lesson.group)+'</p><h2 id="lesson-title" tabindex="-1">'+escape(lesson.title)+'</h2><p>'+escape(lesson.intro)+'</p><p class="plain">'+escape(lesson.why)+'</p></header>'+
+    '<section><h3>Watch it happen</h3><div class="workbench"><figure><div class="graphic" id="graphic"></div><figcaption id="caption" aria-live="polite"></figcaption></figure>'+
+    '<div class="controls">'+Object.entries(moveButtons).map(([key,name])=>'<button type="button" data-do="'+key+'">'+name+'</button>').join('')+
+    '<label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label></div>'+
+    '<div class="options" id="settings">'+(lesson.inputs??[]).map(setting).join('')+'</div><div class="measurement" id="measure"></div><p class="short">This lab uses simplified timing models. Real STA accounts for characterized delays, clock relationships and variation.</p></div></section>'+
+    '<section><h3>Read the constraint or command</h3><pre><code id="syntax"></code></pre><p>'+escape(lesson.syntax)+'</p></section>'+
+    '<section class="two"><div class="note"><h3>At a PD engineer’s desk</h3><p>'+escape(lesson.engineer)+'</p></div><div id="timing-report"></div></section>'+
+    '<section class="cha"><h3>Predict and check</h3><p>'+escape(question)+'</p><div class="choices">'+answers+'</div><p class="reply" id="reply" aria-live="polite"></p></section>'+
+    '<nav class="footnav" aria-label="Adjacent lessons">'+adjacent(lessons[index-1],'Previous')+adjacent(lessons[index+1],'Next')+'</nav>'+
+    '<p class="short"><a href="https://openroad.readthedocs.io/en/latest/main/src/sta/README.html">OpenSTA reference</a> · <a href="https://openroad.readthedocs.io/en/latest/main/openroad/sta/doc/Examples.html">OpenSTA examples</a></p>';
+  $('speed').value=speed;
+  showStep();
+  if(useFocus){
+    $('lesson-title').focus({preventScroll:true});
+    $('lesson').scrollIntoView({block:'start'});
+  }
+}
+
+$('lesson').addEventListener('click',e=>{
+  const b=e.target.closest('button');
+  if(!b)return;
+  const command=b.dataset.do;
+  if(command==='play'){play();return;}
+  if(command){
+    const resume=playing&&command==='restart';
+    pause();
+    if(command==='next')updateStep(step+1);
+    else if(command==='previous')updateStep(step-1);
+    else if(command==='restart')updateStep(0);
+    else showControls();
+    if(resume)play();
+  }
+  if('choice' in b.dataset){
+    const correct=b.dataset.choice==='true';
+    for(const c of $('lesson').querySelectorAll('[data-choice]'))c.setAttribute('aria-pressed',String(c===b));
+    $('reply').className='reply '+(correct?'good':'bad');
+    $('reply').textContent=(correct?'Correct. ':'Try another answer. ')+lesson.quiz[3];
+  }
+});
+$('lesson').addEventListener('input',e=>{
+  if(e.target.id==='speed'){speed=Number(e.target.value);return;}
+  const key=e.target.dataset.value;
+  if(!key||!Object.hasOwn(values,key))return;
+  values[key]=Number(e.target.value);
+  pause(); updateStep(2);
+});
+addEventListener('hashchange',()=>render(location.hash!==''&&location.hash!=='#start'));
+render(location.hash!==''&&location.hash!=='#start');
+</script>
+</body>
+</html>
