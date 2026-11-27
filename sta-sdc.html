@@ -17,6 +17,17 @@ pre{background:#252039;color:#f4ebff;border-radius:.6rem;overflow:auto;padding:.
 @media(max-width:760px){.hero{grid-template-columns:minmax(0,1fr);gap:.4rem;padding-top:1.4rem}.hero-art{max-height:10rem}.layout{grid-template-columns:minmax(0,1fr)}.toc{position:static}.toc nav{columns:2}.two{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:390px){.toc nav{columns:1}.shell{width:calc(100% - 1.1rem)}}
 @media print{.top,.toc,.controls,.options,.footnav,.choices{display:none}.layout{display:block}.hero{padding:0}.sheet,.workbench{background:white;border:0}.graphic svg{min-width:0}}
+
+.theory .easy{font-size:1.075rem;font-weight:650;background:var(--lavender);border-radius:.55rem;padding:.62rem .78rem}
+.theory dl{display:grid;grid-template-columns:minmax(7rem,11rem) minmax(0,1fr);gap:.32rem .85rem;margin:.8rem 0}
+.theory dt{font-weight:730}.theory dd{margin:0;color:var(--muted)}
+.theory details{background:#f8f3fb;border:1px solid var(--rule);border-radius:.6rem;padding:.55rem .78rem}
+.theory summary{font-weight:750;color:#53378a;cursor:pointer}
+.worked{border-left:3px solid #946415;background:#fff3d8;padding:.52rem .78rem;margin-top:.75rem;border-radius:0 .55rem .55rem 0}
+.worked h4{margin:0}.worked button{border:1px solid #a47f3c;background:white;color:#513a19;border-radius:.45rem;padding:.28rem .55rem;font-weight:650}
+#watch{scroll-margin-top:.6rem}
+@media(max-width:490px){.theory dl{display:block}.theory dd{margin-bottom:.43rem}}
+@media print{.worked button{display:none}}
 </style>
 </head>
 <body>
@@ -207,6 +218,219 @@ const lessons = [
  quiz:['You shortened a route and setup now passes. What is your next timing check?','Rerun hold and all required timing scenarios.','Assume the whole design now passes.','Earlier arrival can remove hold margin. Check both timing extremes after an ECO, meaning an engineering change.']
 }
 ];
+const theory = {
+  'one-bit': {
+    easy:'Think of two children passing a note. One hands it off on the first bell. The other needs the note by a later bell.',
+    terms:[
+      ['Register','A tiny memory that keeps a bit until it captures a new value.'],
+      ['Clock-to-Q delay','The small wait from the launch clock edge until the sender’s Q output starts to change.'],
+      ['Timing path','The route the timing tool follows from a starting point through gates and wires to an endpoint.']
+    ],
+    ideas:[
+      'STA breaks the circuit into paths. Along one register-to-register path, the launch clock tells the sender when to act. The sender’s clock-to-Q delay, gates and wires determine when data reaches the receiver’s D input. The capture clock and the receiver’s library checks determine when that input needs to be stable.',
+      'There are two questions. For setup, what is the latest the bit could arrive? For hold, what is the earliest the next bit could start changing the input? STA combines timing models with clock and interface assumptions to answer both.'
+    ],
+    worked:'If the sending register takes 0.4 ns to change Q, the gates take 5.0 ns, and the wires take 1.6 ns, the bit reaches D 7.0 ns after the launch edge in this simple example.',
+    preset:{}
+  },
+  period: {
+    easy:'A clock edge is one clap. The period is the wait between matching claps. Frequency counts how many claps fit in one second.',
+    terms:[
+      ['Rising edge','The instant the signal changes from low to high.'],
+      ['Duty cycle','The share of a cycle spent high. Half the period high is a 50% duty cycle.'],
+      ['MHz','Millions of cycles per second.']
+    ],
+    ideas:[
+      'On a waveform, time moves from left to right. The high and low levels represent logic values. A complete cycle includes both levels. Measure period from rising edge to rising edge, or falling edge to falling edge.',
+      'The period helps set the gap between the usual launch and capture edges of a one-cycle path. Clock delay, setup time, and uncertainty also affect how much of that gap the data can actually use.'
+    ],
+    worked:'At 5 ns per cycle, a second contains 200 million cycles. That is 200 MHz. At 10 ns per cycle the clock runs at 100 MHz.',
+    preset:{period:5}
+  },
+  setup: {
+    easy:'The new bit has a due time. If it shows up after that time, the receiver may miss it.',
+    terms:[
+      ['Latest arrival','The time the latest relevant data could reach D under the modeled conditions.'],
+      ['Required time','The latest safe arrival for a setup check.'],
+      ['Slack','The margin remaining. Negative setup slack tells you how late the data is.']
+    ],
+    ideas:[
+      'Start at the selected capture edge and work backward. Subtract the receiver’s setup requirement and whatever setup uncertainty applies. The result is the data deadline. In this example there is no extra difference between launch and capture clock arrival.',
+      'For a same-clock, one-cycle path with matching clock arrivals, the simplified formula is setup slack = period − setup time − setup uncertainty − latest data arrival. Real checks use the actual edge pair and modeled clock arrivals. Faster data or more available time improves setup margin.'
+    ],
+    worked:'Choose an 8.0 ns period. Subtract 0.50 ns setup time and 0.20 ns uncertainty to get a 7.30 ns deadline. The path arrives at 8.40 ns, so setup slack is −1.10 ns.',
+    preset:{period:8,maxPath:8.4}
+  },
+  hold: {
+    easy:'The receiver just read the old bit. Give it a moment to finish before the next bit changes the input.',
+    terms:[
+      ['Earliest arrival','The first time the next value could reach D along the relevant fast path.'],
+      ['Hold window','The interval after the chosen capture edge when the old input must stay steady in this example.'],
+      ['Minimum-delay check','The check that looks for data arriving too early.']
+    ],
+    ideas:[
+      'Compare the earliest new data arrival with the earliest permitted change at D. For the simplified same-edge case, add the capture clock time, hold time and hold uncertainty to find the earliest safe change. Hold slack equals arrival minus that required time.',
+      'Since both events reference the same source edge in this example, the next period is absent from the calculation. A data-path change that adds delay may help hold and consume setup margin. Check both before keeping the change.'
+    ],
+    worked:'With a 0.25 ns hold time and 0.10 ns uncertainty, new data may safely change D at 0.35 ns. If it arrives at 0.15 ns, hold slack is −0.20 ns. Try moving the period slider next.',
+    preset:{period:10,minPath:.15}
+  },
+  skew: {
+    easy:'The same bell can take longer to reach one listener than another. Skew is the difference between their arrival times.',
+    terms:[
+      ['Source latency','Clock travel before the point where the timing clock is defined.'],
+      ['Network latency','Clock travel from that definition point through the design to a receiving pin.'],
+      ['Propagated clock','A clock whose modeled network delay is calculated through the clock tree.']
+    ],
+    ideas:[
+      'A clock’s latency is its travel time to a point. Skew compares two clock arrivals. If both launch and capture arrivals move later by the same amount, their difference is unchanged. If only capture moves later, the difference grows.',
+      'Later capture can give a next-edge setup check more time. For a same-edge hold check, the receiver then needs the old value later, which can reduce hold slack. Compare both relationships before changing the clock tree.'
+    ],
+    worked:'Add 0.60 ns of delay only to capture. Setup slack grows from +0.90 ns to +1.50 ns in this toy path. Switch the check to Hold. The same delay moves hold slack from 0.00 ns to −0.60 ns.',
+    preset:{latency:.6,kind:0}
+  },
+  uncertainty: {
+    easy:'If a bell could ring a little earlier than expected, be ready a little earlier.',
+    terms:[
+      ['Jitter','Small shifts in when clock edges actually occur.'],
+      ['Uncertainty','Margin the timing check reserves for clock variation and other specified allowances.'],
+      ['Nominal edge','The reference edge drawn at its expected time.']
+    ],
+    ideas:[
+      'Setup uncertainty tightens the latest arrival time. Hold uncertainty can tighten the earliest safe change in the opposite direction. The margins can differ across checks or clock relationships.',
+      'The slider changes the margin in the analysis. It leaves the nominal clock edge and the data travel time fixed. That lets you see what requiring extra margin does on its own.'
+    ],
+    worked:'At a 10.0 ns capture edge, reserve 0.50 ns setup time and 1.20 ns uncertainty. The deadline is 8.30 ns. An 8.40 ns arrival misses by 0.10 ns.',
+    preset:{margin:1.2,maxPath:8.4}
+  },
+  input: {
+    easy:'A delivery already spent time on the road before it reached your front door. The inside trip starts when it gets to the door.',
+    terms:[
+      ['Input port','A named entry point on the boundary of the design being timed.'],
+      ['Reference clock','The clock whose selected edge the external delay is measured against.'],
+      ['Input delay −max / −min','The latest and earliest arrival assumptions at the design boundary.']
+    ],
+    ideas:[
+      'The input timing budget can include time through the external sender and the board signal trace. It is measured relative to the specified clock edge, so the reference edge and board clock relationship matter.',
+      'For this setup example, add the external input delay to the internal path time. The analyzer compares that total with the internal receiver’s deadline. A separate minimum input delay is needed to analyze the early-arrival behavior.'
+    ],
+    worked:'The outside trip takes 3.0 ns and the inside path takes 7.0 ns. Data reaches the receiver at 10.0 ns. The 9.30 ns deadline leaves −0.70 ns of setup slack.',
+    preset:{input:3}
+  },
+  output: {
+    easy:'Hand the delivery over before the final deadline so the next person has time to carry it the rest of the way.',
+    terms:[
+      ['Output port','A named point at which the signal leaves the design.'],
+      ['External setup budget','Time outside the block reserved for signal travel and the receiving device’s setup requirement.'],
+      ['Output delay −min','A separate SDC value derived for the external hold relationship. It can be negative.']
+    ],
+    ideas:[
+      'The internal design must deliver its output in time for the outside trip. In this simple shared-clock example, subtract the external setup budget from the receiving clock edge to get the deadline at the output port.',
+      'Output min and max delays describe different checks. Use the external clock, board assumptions and device requirements to derive each. Deriving the minimum by copying the maximum can conceal a hold interface problem.'
+    ],
+    worked:'A 10.0 ns external capture edge minus a 3.0 ns outside budget gives a 7.0 ns deadline at the port. The chip’s output arrives at 7.5 ns, so setup slack is −0.50 ns.',
+    preset:{output:3}
+  },
+  generated: {
+    easy:'Tap once for every three claps. Each tap stays lined up with a particular clap in the parent rhythm.',
+    terms:[
+      ['Parent clock','The existing clock from which another clock is derived.'],
+      ['Divider','Logic that produces a slower clock with a defined relationship to the parent.'],
+      ['Phase','Which part of the source cycle the generated edges line up with.']
+    ],
+    ideas:[
+      'A generated clock ties its waveform to a known source. STA uses the edge relationship as well as the period when timing paths between related clocks.',
+      'A simple divide ratio specifies the relationship for this example. A real divider can have a particular phase or duty cycle. Inspect the resulting waveform and match it to the actual circuit behavior.'
+    ],
+    worked:'With a 5.0 ns parent and divide-by-three, the generated period is 15.0 ns. The parent rises at 0, 5, 10, and 15 ns. The illustrated generated clock rises at 0 and 15 ns.',
+    preset:{period:5,divide:1}
+  },
+  'false-path': {
+    easy:'A route can carry real data even when the usual shared-bell timing rule does not apply to that route.',
+    terms:[
+      ['Asynchronous clocks','Clocks without a fixed edge relationship for the transfer being considered.'],
+      ['Synchronizer','Circuitry that helps a receiving clock domain safely sample data from another domain.'],
+      ['Exception scope','The exact starting or ending objects whose timing checks the command changes.']
+    ],
+    ideas:[
+      'An STA exception changes analysis for selected paths. Physically the connection still exists. For an asynchronous transfer, there can be a legitimate reason to exclude an ordinary synchronous timing check while separately verifying the crossing.',
+      'An exception that matches too much can hide an actual failure. Look at what the clock and pin queries match. Check whether downstream same-clock logic is still timed, and keep the independent clock-domain crossing verification in place.'
+    ],
+    worked:'Turn on the exception from ext_clk to u_sync1/D. The wire remains visible. The selected ordinary timing checks are skipped, while checks from the first synchronizer stage to later same-clock stages remain distinct.',
+    preset:{excluded:1}
+  },
+  multicycle: {
+    easy:'You can use two bell intervals only if the receiver is designed to wait for the second bell.',
+    terms:[
+      ['Default capture edge','The edge STA normally selects for a check, often the next edge for this same-clock setup example.'],
+      ['Enable','A control that lets a register accept new data at selected times.'],
+      ['Paired hold adjustment','A companion SDC command used here to keep the intended hold edge relationship.']
+    ],
+    ideas:[
+      'A multicycle exception tells STA how to pair edges for a specific transfer. It is justified by the hardware’s logic or protocol. The circuit must keep the relevant data valid and avoid capturing the wrong change on an intermediate edge.',
+      'In this same-clock example, setup moves to the chosen later edge. The paired hold setting preserves the intended hold relationship. Inspect both edge pairs in actual reports, especially when launch and capture clocks differ.'
+    ],
+    worked:'At a 10.0 ns period the 12.40 ns path misses a one-cycle 9.30 ns deadline. A proven two-cycle transfer gives a 19.30 ns deadline and +6.90 ns setup slack.',
+    preset:{period:10,cycles:1}
+  },
+  load: {
+    easy:'A larger electrical load takes more effort to charge. A gentle voltage change takes longer to finish than a sharp one.',
+    terms:[
+      ['Slew','The time for voltage to change between chosen levels, such as 20% and 80% of its range.'],
+      ['Load capacitance','The combined electrical load due to receiver pins and interconnect effects.'],
+      ['Liberty / SPEF','Liberty models the cells. SPEF describes electrical effects extracted from routed wires.']
+    ],
+    ideas:[
+      'When a cell output changes, it moves charge into or out of the attached load. More capacitance often increases cell delay and slows the resulting edge. The next cell sees that slower edge as its input transition.',
+      'The teaching model varies cell delay with input slew and output load while keeping wire delay fixed. Real STA looks up characterized values in Liberty and models interconnect using resistance and capacitance. A separate analysis can flag excessive slew or capacitance even on a path with positive slack.'
+    ],
+    worked:'With 9 fF load and 0.75 ns input transition, this example gives 8.25 ns cell contribution plus 1.20 ns wire contribution. Arrival is 9.45 ns, so the 9.30 ns deadline leaves −0.15 ns slack.',
+    preset:{load:9,slew:.75}
+  },
+  coverage: {
+    easy:'A blank scorecard can mean the race was never timed. First check that someone started the stopwatch.',
+    terms:[
+      ['Constrained path','A path with the launch and deadline information needed for the relevant timing check.'],
+      ['Unconstrained path','A path missing information needed to calculate a relevant timing requirement.'],
+      ['Object query','A command such as get_ports that selects actual objects from the linked design.']
+    ],
+    ideas:[
+      'A physical or logical path can exist even if STA cannot schedule the intended timing check. A missing clock definition, a port name that matches nothing, or an absent external timing budget can all cause gaps.',
+      'Check clocks and timing coverage before reading the worst slack. A report can contain no violations because all measured paths pass, or because important paths were omitted. Resolve the coverage question first.'
+    ],
+    worked:'Load the missing-clock example. The connection remains visible, but there is no capture edge for the check. Set Capture clock constraint to Present and compare what timing information appears.',
+    preset:{covered:0}
+  },
+  corners: {
+    easy:'A trip that is easy on a clear day can take longer in bad weather. Timing needs to check the conditions the chip is expected to work in.',
+    terms:[
+      ['Mode','One use of the chip, such as normal operation or factory scan testing.'],
+      ['Corner','A selected set of characterized cell and wiring conditions for analysis.'],
+      ['Analysis scene','A mode paired with the corresponding clock constraints and timing models.']
+    ],
+    ideas:[
+      'Cells and interconnect can shift delay across manufacturing variation, voltage, and temperature. A timing mode may also change which clocks and paths are active. A scene connects both sets of assumptions.',
+      'Slow data can hurt setup, while fast data can hurt hold. The worst case depends on both clock and data paths and the corresponding requirements. Use the actual scene reports to identify it.'
+    ],
+    worked:'Functional nominal has +0.90 ns setup slack. Functional slow moves the latest arrival to 10.10 ns against the same 9.30 ns deadline, giving −0.80 ns. Try Scan · fast and switch to Hold to check a different risk.',
+    preset:{scene:1,kind:0}
+  },
+  report: {
+    easy:'Read the receipt before trying to save time. Find which part of the trip cost the most.',
+    terms:[
+      ['Startpoint / endpoint','The objects at the beginning and end of the reported timing path.'],
+      ['Incremental delay','The extra time contributed by one gate, wire section, or other stage in the report.'],
+      ['ECO','Engineering change order. A targeted design change followed by verification.']
+    ],
+    ideas:[
+      'First confirm the scenario, the exact launch and capture edges, and that the path is meant to be timed as reported. Then compare arrival with the requirement. Use the incremental delays to distinguish a slow cell from a high-load or long interconnect segment.',
+      'A justified fix should address the cause. For a slow wire, inspect placement, net loading and route length. For a tight cell stage, inspect its output load and transition. Re-extract or update wire parasitics after a physical change, and rerun setup, hold and other required scenarios.'
+    ],
+    worked:'The original path takes 6.30 ns in cells and 3.40 ns in wires, so arrival is 9.70 ns against a 9.30 ns deadline. Reducing the wire contribution to 2.60 ns moves arrival to 8.90 ns, leaving +0.40 ns setup slack.',
+    preset:{period:10,repair:1}
+  }
+};
+
 const $ = id => document.getElementById(id);
 const escape = x => String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = (n,u) => (u==='fF' ? n.toFixed(1) : fixed(n))+' '+u;
@@ -336,6 +560,9 @@ function metrics(m) {
     return chip('Period '+ns(p))+chip('Frequency '+(1000/p).toFixed(1)+' MHz')+
        (lesson.id==='generated'?chip('Generated period '+ns(p*(values.divide+2)),'info'):'');
   }
+  if(lesson.id==='one-bit' && step===2){
+    return chip('Clock to Q 0.40 ns')+chip('Gates 5.00 ns')+chip('Wires 1.60 ns')+chip('Arrival at D 7.00 ns','info');
+  }
   if(!m) return '';
   return chip('Capture edge '+ns(m.edge))+chip((m.isHold?'Earliest change ':'Deadline ')+ns(m.required))+
     chip('Arrival '+ns(m.arrival))+chip((m.isHold?'Hold':'Setup')+' slack '+signed(m.slack)+(m.slack<0?' · VIOLATION':' · MET'),m.slack<0?'fail':'pass')+
@@ -422,6 +649,16 @@ function setting(item){
     '<input type="range"'+keyAttr+' min="'+min+'" max="'+max+'" step="'+step+'" value="'+initial+'"></label>';
 }
 
+function theorySection(item){
+  const t=theory[item.id];
+  const terms=t.terms.map(([term,definition])=>'<dt>'+escape(term)+'</dt><dd>'+escape(definition)+'</dd>').join('');
+  return '<section class="theory"><h3>What it means, in plain English</h3><p class="easy">'+escape(t.easy)+'</p>'+
+    '<dl>'+terms+'</dl><details open><summary>Understand the theory</summary>'+
+    t.ideas.map(idea=>'<p>'+escape(idea)+'</p>').join('')+
+    '</details><div class="worked"><h4>Worked example</h4><p>'+escape(t.worked)+'</p>'+
+    '<button type="button" data-example>Show this example in the diagram</button></div></section>';
+}
+
 function render(useFocus){
   pause();
   lesson=lessons.find(item=>'#'+item.id===location.hash)??lessons[0];
@@ -435,7 +672,8 @@ function render(useFocus){
   const choice=(value,answer)=>'<button type="button" aria-pressed="false" data-choice="'+value+'">'+escape(answer)+'</button>';
   const answers=index%2===0?choice(true,correct)+choice(false,other):choice(false,other)+choice(true,correct);
   $('lesson').innerHTML='<header><p class="kicker">'+escape(lesson.group)+'</p><h2 id="lesson-title" tabindex="-1">'+escape(lesson.title)+'</h2><p>'+escape(lesson.intro)+'</p><p class="plain">'+escape(lesson.why)+'</p></header>'+
-    '<section><h3>Watch it happen</h3><div class="workbench"><figure><div class="graphic" id="graphic"></div><figcaption id="caption" aria-live="polite"></figcaption></figure>'+
+    theorySection(lesson)+
+    '<section id="watch"><h3 tabindex="-1">Watch it happen</h3><div class="workbench"><figure><div class="graphic" id="graphic"></div><figcaption id="caption" aria-live="polite"></figcaption></figure>'+
     '<div class="controls">'+Object.entries(moveButtons).map(([key,name])=>'<button type="button" data-do="'+key+'">'+name+'</button>').join('')+
     '<label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label></div>'+
     '<div class="options" id="settings">'+(lesson.inputs??[]).map(setting).join('')+'</div><div class="measurement" id="measure"></div><p class="short">This lab uses simplified timing models. Real STA accounts for characterized delays, clock relationships and variation.</p></div></section>'+
@@ -455,6 +693,17 @@ function render(useFocus){
 $('lesson').addEventListener('click',e=>{
   const b=e.target.closest('button');
   if(!b)return;
+  if('example' in b.dataset){
+    pause();
+    for(const [key,value] of Object.entries(theory[lesson.id].preset)){
+      values[key]=value;
+      $(key).value=String(value);
+    }
+    updateStep(2);
+    $('watch').querySelector('h3').focus({preventScroll:true});
+    $('watch').scrollIntoView({block:'start'});
+    return;
+  }
   const command=b.dataset.do;
   if(command==='play'){play();return;}
   if(command){
