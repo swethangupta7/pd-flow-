@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An animated textbook for physical design input files, from Verilog netlists to timing analysis scenes.">
+  <title>Input Files · PD Flow Lab</title>
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="css/input-files.css">
+  <script type="module" src="js/input-files.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="mast-inner">
+      <a class="wordmark" href="index.html"><img src="icon.svg" alt="" width="32" height="32"> PD Flow Lab</a>
+      <nav aria-label="Site"><a href="index.html#lab">Flow Lab</a><a href="input-files.html" aria-current="page">Input Files</a></nav>
+    </div>
+  </header>
+  <div class="book">
+    <aside class="sidebar" aria-label="Textbook navigation">
+      <h2>Contents</h2>
+      <label for="lesson-search">Find a concept</label>
+      <input id="lesson-search" type="search" placeholder="Search lessons">
+      <nav id="contents" aria-label="Chapters and concepts"></nav>
+    </aside>
+    <main id="main">
+      <header class="book-title">
+        <h1>Physical Design Input Files</h1>
+        <p>Start with a signal from a door sensor. Follow it through gates, wires, and timing checks, then work through the same file clues a physical design engineer would use.</p>
+        <nav class="learning-path" aria-label="Learning paths">
+          <a href="#start-here-a-chip-and-a-signal">Start from zero</a>
+          <a href="#netlist-cell-master-versus-cell-instance">Study the files</a>
+          <a href="#think-like-a-pd-engineer-match-the-same-cell-across-three-files">Debug like an engineer</a>
+        </nav>
+      </header>
+      <article id="lesson" aria-labelledby="lesson-title"></article>
+      <noscript><p>Enable JavaScript to display the lessons and use the diagram player.</p></noscript>
+    </main>
+  </div>
+</body>
+</html>

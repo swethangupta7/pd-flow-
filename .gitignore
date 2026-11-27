@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 .env.local
+.runtime.json
+.last-error.log

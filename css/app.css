@@ -1,3 +1,9 @@
 @import url('./base.css');
 @import url('./lab.css');
 @import url('./sections.css');
+/* The hosted site has no local process or desktop launcher to manage. */
+[data-hosted] .power-wrap,
+[data-hosted] a[data-sec="access"],
+[data-hosted] #access {
+  display: none;
+}
